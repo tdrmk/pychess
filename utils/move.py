@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from collections import Counter
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
 	from board import Board
 	from pieces import Piece, Pawn, Rook, King
+	from chess import Chess
 	from . import Square, Player
 
 
@@ -50,6 +52,8 @@ class Move:
 
 		self.pawn_promoted = pawn_promoted
 		self.new_piece = new_piece
+
+		self.notation = ''  # Updated before and after applying move (needs chess object to compute)
 
 	@classmethod
 	def typical(cls, board: Board, piece: Piece, new_square: Square):  # Any move (not special)
@@ -97,3 +101,43 @@ class Move:
 		captured_piece = board[new_square]
 		return cls(player, piece, old_square, new_square, piece_moved, captured_piece, pawn_promoted=True,
 				   new_piece=new_piece)
+
+	def update_notation_before_move(self, chess: Chess) -> None:
+		# Call this method before applying the move, to update the notation string
+		# i.e. compute notations for move which are performed
+		if self.castle_rook:  # castling
+			self.notation = 'O-O' if self.new_square.x == 6 else 'O-O-O'  # king side or queen side
+			return
+
+		n_square = self.new_square.notation
+		n_captured = 'x' if self.captured_piece or self.en_passant_pawn else ''
+		n_promoted = f'={self.new_piece.notation}' if self.pawn_promoted else ''
+		n_enpassant = ' e.p.' if self.en_passant_pawn else ''
+		n_piece = self.piece.notation
+		n_ambiguity = ''  # remove ambiguity in case if any other piece of same type can move to same square
+
+		if not n_piece and n_captured:  # in case of pawn and a piece captured, specify file
+			n_piece = self.old_square.notation[0]
+		else:  # if not pawn
+			# if two different pieces of the same type could move to the same square,
+			# to resolve the ambiguity of which piece had moved, we use the file (x in square) or rank (y in square)
+			# to uniquely identify the piece
+			other_pieces = [piece for piece in chess.board[type(self.piece)][self.player] if piece != self.piece and
+							any(move for move in piece.possible_moves() if move.new_square == self.new_square)]
+			if other_pieces:
+				counter = Counter(''.join([piece.square.notation for piece in other_pieces]))
+				if self.old_square.notation[0] not in counter:
+					n_ambiguity = self.old_square.notation[0]
+				else:
+					assert self.old_square.notation[1] not in counter
+					n_ambiguity = self.old_square.notation[1]
+
+		self.notation = f"{n_piece}{n_ambiguity}{n_captured}{n_square}{n_promoted}{n_enpassant}"
+
+	def update_notation_after_move(self, chess: Chess) -> None:
+		# Call this method after applying the move, to update the notation string
+		# with respect to status of the game
+		if chess.is_checkmate():
+			self.notation += '#'
+		elif chess.is_check():
+			self.notation += '+'

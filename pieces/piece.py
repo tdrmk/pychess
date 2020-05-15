@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from constants import SQUARE, BOARD_LEFT, BOARD_TOP
 from utils import Player, Square
@@ -8,6 +8,7 @@ from utils import Player, Square
 if TYPE_CHECKING:
 	from board import Board
 	from pygame import Surface, Rect
+	from utils import Move
 
 
 class Piece:
@@ -31,7 +32,7 @@ class Piece:
 	def moved(self) -> bool:  # indicates if piece moved from it's initial square
 		return self.board.moved(piece=self)
 
-	def possible_moves(self):
+	def possible_moves(self) -> List[Move]:
 		# Returns ALL possible moves the piece can take! (without considering consequences like check)
 		raise NotImplemented
 
@@ -50,6 +51,11 @@ class Piece:
 
 	# Necessary to set the images for the pieces (king, queen, ...) for drawing.
 	IMG = {Player.WHITE: None, Player.BLACK: None}
+
+
+	@property
+	def notation(self) -> str:
+		raise NotImplemented
 
 	@classmethod
 	def set_image(cls, white_img: Surface, black_img: Surface):

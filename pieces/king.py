@@ -65,3 +65,8 @@ class King(Piece):
 			(Square(x + 1, y), Square(x, y + 1), Square(x + 1, y + 1), Square(x - 1, y + 1),
 			 Square(x - 1, y), Square(x, y - 1), Square(x + 1, y - 1), Square(x - 1, y - 1))
 		))
+
+
+	@property
+	def notation(self) -> str:
+		return 'K'

@@ -25,3 +25,8 @@ class Rook(Piece):
 					squares.append(square)
 				break
 		return squares
+
+
+	@property
+	def notation(self) -> str:
+		return 'R'

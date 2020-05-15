@@ -15,7 +15,7 @@ class Memoize:
 				# print('Returning memoized value', _fn.__name__)
 				return return_value
 			return_value = _fn(*args)
-			print('Memoizing', key)
+			# print('Memoizing', key)
 			self._stored_values_[key] = return_value
 			return return_value
 
@@ -25,7 +25,7 @@ class Memoize:
 		@wraps(_fn)
 		def wrapper(*args):
 			# remove all entries
-			print('Invalidate', _fn.__name__)
+			# print('Invalidate', _fn.__name__)
 			self._stored_values_.clear()
 			return _fn(*args)
 

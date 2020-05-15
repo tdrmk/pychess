@@ -15,3 +15,8 @@ class Knight(Piece):
 			[Square(x - 1, y - 2), Square(x + 1, y - 2), Square(x - 2, y - 1), Square(x + 2, y - 1),
 			 Square(x - 1, y + 2), Square(x + 1, y + 2), Square(x - 2, y + 1), Square(x + 2, y + 1)]
 		))
+
+
+	@property
+	def notation(self) -> str:
+		return 'N'

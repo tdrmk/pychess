@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Set, Union, Dict, Tuple
+from typing import TYPE_CHECKING, List, Set, Union, Dict, Tuple, Type
 
 import pygame
 
@@ -19,13 +19,21 @@ class Board:
 		self._piece_moved_: Dict[Piece, bool] = dict()
 		self._moves_history_ = moves_history
 
-	def __getitem__(self, item) -> Union[Square, Piece, List[Piece]]:
+	def __getitem__(self, item: Union[Piece, Square, Player, Type[Piece]]) \
+			-> Union[Square, Piece, List[Piece], Dict[Player, List[Piece]]]:
 		if isinstance(item, Piece):  # square where piece is
 			return self._piece_to_square_map_.get(item)
 		elif isinstance(item, Square):  # piece on the square
 			return self._square_to_piece_map_.get(item)
 		elif isinstance(item, Player):  # pieces belonging to player
 			return [piece for piece in self._piece_to_square_map_ if piece.player == item]
+		elif issubclass(item, Piece):  # Returns the pieces of specified type on the board.
+			return {
+				Player.WHITE: [piece for piece in self._piece_to_square_map_
+							   if isinstance(piece, item) and piece.player == Player.WHITE],
+				Player.BLACK: [piece for piece in self._piece_to_square_map_
+							   if isinstance(piece, item) and piece.player == Player.BLACK],
+			}
 
 	def add(self, piece: Piece, square: Square):
 		self._square_to_piece_map_[square] = piece
@@ -127,7 +135,6 @@ class Board:
 		square_surf.set_alpha(alpha)  # 255 -- opaque
 		pygame.draw.rect(square_surf, color, (0, 0, SQUARE, SQUARE), width)
 		win.blit(square_surf, rect)
-
 
 	@staticmethod
 	def highlight_circle(win: Surface, square: Square, color: Tuple[int, int, int], alpha=128, width=0):

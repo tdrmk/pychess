@@ -31,3 +31,8 @@ class Queen(Piece):
 					squares.append(square)
 				break
 		return squares
+
+
+	@property
+	def notation(self) -> str:
+		return 'Q'

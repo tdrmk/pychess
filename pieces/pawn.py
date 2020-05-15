@@ -65,3 +65,8 @@ class Pawn(Piece):
 			lambda square: square and (not self.board[square] or self.board[square].player != self.player),
 			[left_square, right_square]
 		))
+
+
+	@property
+	def notation(self) -> str:
+		return ''

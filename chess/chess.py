@@ -37,6 +37,10 @@ class Chess:
 	def turn(self) -> Player:
 		return self._turn
 
+	@property
+	def board(self):
+		return self._board
+
 	@cache.memoize
 	def __getitem__(self, item):
 		return self._board[item]
@@ -56,7 +60,6 @@ class Chess:
 		# returns valid moves the piece of the player [current turn] can make
 		return [move for move in piece.possible_moves() if self._can_make_move_(move)]
 
-
 	# Broken get-move and broken-castle
 	@cache.memoize
 	def get_move(self, piece: Piece, new_square: Square) -> Move:
@@ -72,10 +75,13 @@ class Chess:
 		assert move.player == self._turn
 		# Either pawn is not promoted or if promoted new_piece MUST be specified
 		assert not move.pawn_promoted or move.new_piece
+		move.update_notation_before_move(self)
 		self._board.make_move(move)
 		self._moves_.push(move)
 		self._turn = self._turn.enemy
-		print('Now turn:', self._turn)
+		move.update_notation_after_move(self)
+		print(move.player, move.notation)
+		# print('Now turn:', self._turn)
 
 	# History -- UNDO a move
 	@cache.invalidate
@@ -191,14 +197,14 @@ class Chess:
 		pos = pos[0] - BOARD_LEFT, pos[1] - BOARD_TOP
 		if 0 <= pos[0] < BOARD_WIDTH and 0 <= pos[1] < BOARD_HEIGHT:
 			clicked_square = Square(pos[0] // SQUARE, pos[1] // SQUARE)
-			print('CLICKED SQUARE', clicked_square, 'SELECTED PIECE:', self._selected_piece)
+			# print('CLICKED SQUARE', clicked_square, 'SELECTED PIECE:', self._selected_piece)
 
 			if self._selected_piece:  # if piece already selected
 				if self._board[clicked_square] and self._board[clicked_square].player == self._turn:
 					self._selected_piece = self._board[clicked_square]  # if player's on own piece, change selection
 				else:
 					move = self.get_move(self._selected_piece, clicked_square)
-					print('MOVE:', move)
+					# print('MOVE:', move)
 					if move:
 						if move.pawn_promoted:  # Wait for user to make a choice
 							self._promotion_move = move
