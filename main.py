@@ -17,7 +17,7 @@ def game():
 	chess_instance = chess.from_initial()
 	run = True
 	while run:
-		chess_instance.draw(win)
+		chess_instance.draw(win, small_font)
 		chess_instance.draw_status(win, small_font, large_font)
 		pygame.display.update()
 		for event in pygame.event.get():

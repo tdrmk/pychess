@@ -128,15 +128,20 @@ class Chess:
 		return 'Chess(<board>, <player_turn>, <move_history>)'
 
 	################## UI FUNCTIONS	#######################################
-	def draw(self, win: Surface):
-		self._board.draw(win)
+	def draw(self, win: Surface, small_font: Font):
+		self._board.draw(win, small_font)
 		if self._selected_piece:
 			self._board.highlight_circle(win, self._selected_piece.square, (255, 0, 0))
 			for move in self._possible_moves_(self._selected_piece):
 				if move.captured_piece or move.en_passant_pawn:
-					self._board.highlight_circle(win, move.new_square, (0, 0, 255))
+					self._board.highlight_circle(win, move.new_square, (0, 0, 255), rf=0.8)
 				else:
-					self._board.highlight_circle(win, move.new_square, (0, 255, 0))
+					self._board.highlight_circle(win, move.new_square, (0, 255, 0), rf=0.8)
+		last_move = self._moves_.top()
+		if last_move:
+			self._board.highlight_square(win, last_move.old_square, (255, 0, 0), 128, width=5)
+			self._board.highlight_square(win, last_move.new_square, (255, 0, 0), 128, width=5)
+
 		for piece in self._board[self._turn]:
 			piece.draw(win)
 		for piece in self._board[self._turn.enemy]:
@@ -150,7 +155,7 @@ class Chess:
 		status_rect = pygame.Rect(STATUS_RECT)
 		board_rect = pygame.Rect(BOARD_RECT)
 		pygame.draw.rect(win, (255, 255, 255), status_rect)
-		turn_surf: Surface = small_font.render(f"Turn: {self._turn}", True, (0, 0, 0))
+		turn_surf: Surface = small_font.render(f"{self._turn}", True, (0, 0, 0))
 		turn_rect: pygame.Rect = turn_surf.get_rect()
 		turn_rect.midleft = status_rect.midleft
 		win.blit(turn_surf, turn_rect)
@@ -158,10 +163,10 @@ class Chess:
 		state_surf: Surface = None
 		if self.is_checkmate():
 			state_surf = small_font.render(f"CHECKMATE!", True, (0, 0, 0))
-			game_over_font = large_font.render(f"{self._turn.enemy} WINS!", True, (10, 255, 50))
-			game_over_rect = game_over_font.get_rect()
-			game_over_rect.center = board_rect.center
-			win.blit(game_over_font, game_over_rect)
+			# game_over_font = large_font.render(f"{self._turn.enemy} WINS!", True, (10, 255, 50))
+			# game_over_rect = game_over_font.get_rect()
+			# game_over_rect.center = board_rect.center
+			# win.blit(game_over_font, game_over_rect)
 		elif self.is_check():
 			state_surf = small_font.render(f"CHECK!", True, (0, 0, 0))
 		elif self.is_stalemate():

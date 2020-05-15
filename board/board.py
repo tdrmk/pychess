@@ -4,12 +4,14 @@ from typing import TYPE_CHECKING, List, Set, Union, Dict, Tuple, Type
 
 import pygame
 
-from constants import BOARD_LEFT, BOARD_TOP, SQUARE, WHITE_SQUARE_COLOR, BLACK_SQUARE_COLOR
+from constants import BOARD_LEFT, BOARD_TOP, SQUARE, WHITE_SQUARE_COLOR, BLACK_SQUARE_COLOR, BOARD_MARGIN_COLOR, \
+	BOARD_RECT_WITH_MARGIN, BOARD_RECT, BOARD_MARGIN
 from pieces import Piece
 from utils import Player, Square, Move, History
 
 if TYPE_CHECKING:
 	from pygame import Surface
+	from pygame.font import Font
 
 
 class Board:
@@ -137,16 +139,30 @@ class Board:
 		win.blit(square_surf, rect)
 
 	@staticmethod
-	def highlight_circle(win: Surface, square: Square, color: Tuple[int, int, int], alpha=128, width=0):
+	def highlight_circle(win: Surface, square: Square, color: Tuple[int, int, int], alpha=128, width=0, rf=1.0):
+		# rf -- radius factor -- how much to shrink the radius (0.0 to 1.0)
 		rect = pygame.Rect(BOARD_LEFT + square.x * SQUARE, BOARD_TOP + square.y * SQUARE, SQUARE, SQUARE)
 		square_surf = pygame.Surface(rect.size, pygame.SRCALPHA)
 		square_surf.set_colorkey((0, 0, 0))  # color -- which will become transparent
 		square_surf.set_alpha(alpha)  # 255 -- opaque
-		pygame.draw.circle(square_surf, color, (SQUARE // 2, SQUARE // 2), SQUARE // 2, width)
+		pygame.draw.circle(square_surf, color, (SQUARE // 2, SQUARE // 2), int(rf * SQUARE // 2), width)
 		win.blit(square_surf, rect)
 
 	@staticmethod
-	def draw(win: Surface):
+	def draw(win: Surface, font: Font):
+		pygame.draw.rect(win, BLACK_SQUARE_COLOR, BOARD_RECT_WITH_MARGIN)
+		pygame.draw.rect(win, WHITE_SQUARE_COLOR, BOARD_RECT, 5)
+		for i in range(8):	# Ranks
+			text_surf: Surface = font.render(f"{8 - i}", True, WHITE_SQUARE_COLOR)
+			text_rect: pygame.Rect = text_surf.get_rect()
+			text_rect.center = (BOARD_LEFT - BOARD_MARGIN // 2, BOARD_TOP + SQUARE * i + SQUARE // 2)
+			win.blit(text_surf, text_rect)
+
+		for j in range(8):	# Files
+			text_surf: Surface = font.render(f"{chr(65 + j)}", True, WHITE_SQUARE_COLOR)
+			text_rect: pygame.Rect = text_surf.get_rect()
+			text_rect.center = (BOARD_LEFT + SQUARE * j + SQUARE // 2, BOARD_TOP + 8 * SQUARE + BOARD_MARGIN // 2)
+			win.blit(text_surf, text_rect)
 		for x in range(8):
 			for y in range(8):
 				color = BLACK_SQUARE_COLOR if (x + y) % 2 else WHITE_SQUARE_COLOR
