@@ -9,7 +9,6 @@ def game():
 	pygame.init()
 	win: pygame.Surface = pygame.display.set_mode((constants.WIN_WIDTH, constants.WIN_HEIGHT))
 	small_font = pygame.font.Font(None, constants.FONT_SIZE_SMALL)
-	large_font = pygame.font.Font(None, constants.FONT_SIZE_LARGE)
 	pygame.display.set_caption('Chess')
 	clock = pygame.time.Clock()
 
@@ -18,7 +17,7 @@ def game():
 	run = True
 	while run:
 		chess_instance.draw(win, small_font)
-		chess_instance.draw_status(win, small_font, large_font)
+		chess_instance.draw_status(win, small_font)
 		pygame.display.update()
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT or \

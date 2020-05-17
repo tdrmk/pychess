@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List
 
 import pygame
-from pygame import K_LEFT, K_RIGHT
+from pygame import K_LEFT, K_RIGHT, K_s
 
 from board import Board
 from constants import BOARD_TOP, BOARD_LEFT, BOARD_HEIGHT, BOARD_WIDTH, SQUARE, STATUS_RECT, BOARD_RECT
 from pieces import King, Piece
-from utils import Move, Square, History
+from utils import Move, Square, History, write_notations
 from utils import Player, Memoize
 from .promotion import get_promotion_selection, draw_promotion_menu
 
@@ -75,13 +75,11 @@ class Chess:
 		assert move.player == self._turn
 		# Either pawn is not promoted or if promoted new_piece MUST be specified
 		assert not move.pawn_promoted or move.new_piece
-		move.update_notation_before_move(self)
-		self._board.make_move(move)
-		self._moves_.push(move)
-		self._turn = self._turn.enemy
-		move.update_notation_after_move(self)
-		print(move.player, move.notation)
-		# print('Now turn:', self._turn)
+		with move.update_notation(self):  # update the notation (with context before and after move)
+			# Make the move.
+			self._board.make_move(move)
+			self._moves_.push(move)
+			self._turn = self._turn.enemy
 
 	# History -- UNDO a move
 	@cache.invalidate
@@ -151,9 +149,8 @@ class Chess:
 			draw_promotion_menu(win, self._promotion_move.player)
 
 	# Draws the status (CHECK, CHECKMATE or STALEMATE?) of the game!
-	def draw_status(self, win: Surface, small_font: Font, large_font: Font):
+	def draw_status(self, win: Surface, small_font: Font):
 		status_rect = pygame.Rect(STATUS_RECT)
-		board_rect = pygame.Rect(BOARD_RECT)
 		pygame.draw.rect(win, (255, 255, 255), status_rect)
 		turn_surf: Surface = small_font.render(f"{self._turn}", True, (0, 0, 0))
 		turn_rect: pygame.Rect = turn_surf.get_rect()
@@ -163,10 +160,6 @@ class Chess:
 		state_surf: Surface = None
 		if self.is_checkmate():
 			state_surf = small_font.render(f"CHECKMATE!", True, (0, 0, 0))
-			# game_over_font = large_font.render(f"{self._turn.enemy} WINS!", True, (10, 255, 50))
-			# game_over_rect = game_over_font.get_rect()
-			# game_over_rect.center = board_rect.center
-			# win.blit(game_over_font, game_over_rect)
 		elif self.is_check():
 			state_surf = small_font.render(f"CHECK!", True, (0, 0, 0))
 		elif self.is_stalemate():
@@ -189,6 +182,11 @@ class Chess:
 			if self.redo_move():
 				self._selected_piece = None
 
+		elif key == K_s:  # save moves to file `moves.txt`
+			file_name = 'moves.txt'
+			print(f'Saving moves to {file_name}')
+			write_notations(self._moves_.stack, file_name)
+
 	def handle_click(self, pos):
 		if self._promotion_move:  # Handle promotion
 			piece_cls = get_promotion_selection(pos)
@@ -202,14 +200,11 @@ class Chess:
 		pos = pos[0] - BOARD_LEFT, pos[1] - BOARD_TOP
 		if 0 <= pos[0] < BOARD_WIDTH and 0 <= pos[1] < BOARD_HEIGHT:
 			clicked_square = Square(pos[0] // SQUARE, pos[1] // SQUARE)
-			# print('CLICKED SQUARE', clicked_square, 'SELECTED PIECE:', self._selected_piece)
-
 			if self._selected_piece:  # if piece already selected
 				if self._board[clicked_square] and self._board[clicked_square].player == self._turn:
 					self._selected_piece = self._board[clicked_square]  # if player's on own piece, change selection
 				else:
 					move = self.get_move(self._selected_piece, clicked_square)
-					# print('MOVE:', move)
 					if move:
 						if move.pawn_promoted:  # Wait for user to make a choice
 							self._promotion_move = move

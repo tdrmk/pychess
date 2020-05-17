@@ -23,6 +23,6 @@ class Square(namedtuple('Square', ['x', 'y'])):
 
 	@classmethod
 	def from_notation(cls, notation: str):
-		if re.match("&[a-h][1-8]$", notation):
+		if re.match("^[a-h][1-8]$", notation):
 			x, y = ord(notation[0]) - 97, 8 - int(notation[1])
 			return cls(x=x, y=y)

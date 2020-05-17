@@ -27,3 +27,8 @@ class History(Generic[T]):
 	def top(self) -> T:
 		if self._index_ > 0:
 			return self._entries_[self._index_ - 1]
+
+	@property
+	def stack(self) -> List[T]:
+		# returns the entire history, CAUTION: don't mutate, use for read-only purposes.
+		return self._entries_[:self._index_]
