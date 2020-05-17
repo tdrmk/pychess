@@ -6,6 +6,7 @@ It allows only valid moves and ensures that player does not move into a check.
 Its indicates if the is a check, checkmate or stalemate.
 It does not implement the concept of a draw.
 It supports history functionality (can undo and redo moves).
+Also supports notations.
 
 Image assets are downloaded from [open game art](https://opengameart.org/).
 GUI is build using `pygame`.
@@ -25,12 +26,13 @@ Run the game using
 python main.py
 ```
 
-## HOW TO PLAY
+## HOW TO PLAY GAME
 Select a piece by clicking on it (can only select pieces belonging to current player). 
 Select a new square to move the piece to (game prevents invalid and not allowed moves).
 Allows squares are highlighted to aid the user.
 Current players turn, checks, checkmate, or stalemate is indicated in the below the game.
 Use the arrows keys (←, →) to undo and redo moves.
+Press `s` to save the moves to `moves.txt`.
 
 
 ## CODE INFORMATION
