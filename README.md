@@ -6,7 +6,10 @@ It allows only valid moves and ensures that player does not move into a check.
 Its indicates if the is a check, checkmate or stalemate.
 It does not implement the concept of a draw.
 It supports history functionality (can undo and redo moves).
-Also supports notations.
+
+Game has notation support. Supports saving the game progress in form of notations to a file.
+Also supports replaying a game and video recording the same (Refer replay.py). 
+
 
 Image assets are downloaded from [open game art](https://opengameart.org/).
 GUI is build using `pygame`.
@@ -34,6 +37,15 @@ Current players turn, checks, checkmate, or stalemate is indicated in the below 
 Use the arrows keys (←, →) to undo and redo moves.
 Press `s` to save the moves to `moves.txt`.
 
+
+## HOW TO REPLAY A GAME
+Write chess moves to a file using [standard notation](https://www.chessstrategyonline.com/content/tutorials/basic-chess-concepts-chess-notation).
+Refer `utils/notation_io.py` for an example. Run `python replay.py --help` to get all possible command line options.
+
+Replay the game using
+```commandline
+python replay.py --file file_name
+```
 
 ## CODE INFORMATION
 The implementation is broken into packages.

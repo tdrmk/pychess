@@ -4,3 +4,4 @@ from .square import Square
 from .memoize import Memoize
 from .history import History
 from .notation_io import read_notations, write_notations
+from .recorder import ScreenRecorder
